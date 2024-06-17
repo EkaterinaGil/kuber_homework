@@ -69,4 +69,4 @@ data:
             names:
             - default
           selectors:
-            label: "app.kubernetes.io/name=echoserver"
+            label: "app.kubernetes.io/name=echo-server"
