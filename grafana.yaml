@@ -40,4 +40,3 @@ spec:
             name: grafana-service
             port:
               number: 3000
----
