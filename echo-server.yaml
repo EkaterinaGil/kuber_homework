@@ -2,8 +2,17 @@ kind: Pod
 apiVersion: v1
 metadata:
   name: echo-server
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/path: "/manage/prometheus"
+    prometheus.io/port: "8080"
   labels:
     app: echo-server
+    app.kubernetes.io/name: echo-server
+    app.kubernetes.io/instance: echo-server
+    app.kubernetes.io/version: "v2.0"
+    app.kubernetes.io/component: application
+    app.kubernetes.io/managed-by: manual
 spec:
   containers:
     - name: echo-server
@@ -11,23 +20,47 @@ spec:
       ports:
         - containerPort: 8080
       env:
-        - name: SPRING_PROFILES_ACTIVE
-          value: simple
+      - name: SPRING_PROFILES_ACTIVE
+        value: "simple"
+      readinessProbe:
+        httpGet:
+          path: /manage/health
+          port: 8080
+        initialDelaySeconds: 5
+        periodSeconds: 5
+        timeoutSeconds: 5
+        failureThreshold: 5
 ---
-kind: Service
 apiVersion: v1
+kind: Service
 metadata:
   name: echo-server-service
+  labels:
+    app.kubernetes.io/name: echo-server
+    app.kubernetes.io/instance: echo-server
+    app.kubernetes.io/version: "v2.0"
+    app.kubernetes.io/component: application
+    app.kubernetes.io/managed-by: manual
 spec:
   selector:
     app: echo-server
   ports:
-    - port: 8080
+  - name: java-service
+    port: 8080
+    targetPort: java-service
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: echo-server-ingress
+  labels:
+    app.kubernetes.io/name: echo-server
+    app.kubernetes.io/instance: echo-server
+    app.kubernetes.io/version: "v2.0"
+    app.kubernetes.io/component: application
+    app.kubernetes.io/managed-by: manual
+  annotations:
+    kubernetes.io/ingress.class: nginx
 spec:
   rules:
   - host: echo-server.local
