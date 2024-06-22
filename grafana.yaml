@@ -1,18 +1,25 @@
-kind: Pod
-apiVersion: v1
+apiVersion: apps/v1
+kind: Deployment
 metadata:
-  name: grafana
+  name: grafana-deployment
   labels:
     app: grafana
 spec:
-  containers:
-    - name: grafana
-      image: grafana/grafana:latest
-      imagePullPolicy: IfNotPresent
-      ports:
-        - containerPort: 3000
-          name: http-grafana
-          protocol: TCP
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grafana
+  template:
+    metadata:
+      labels:
+        app: grafana
+    spec:
+      containers:
+        - name: grafana
+          image: grafana/grafana:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3000
 ---
 kind: Service
 apiVersion: v1
@@ -39,4 +46,4 @@ spec:
           service:
             name: grafana-service
             port:
-              number: 3000
+              number: 3000 
